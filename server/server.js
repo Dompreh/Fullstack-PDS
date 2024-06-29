@@ -9,6 +9,8 @@ const authRouter = require('./routes/auth')
 app.use(cors())
 app.use(express.json())
 
+
+
 //DB Connection
 const DB = process.env.DB
 mongoose.connect(DB).then(()=>{
@@ -19,6 +21,7 @@ mongoose.connect(DB).then(()=>{
 
 //ROUTES
 app.use("/auth", authRouter)
+
 
 
 //SERVER
