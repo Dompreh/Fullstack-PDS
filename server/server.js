@@ -4,10 +4,14 @@ const cors = require('cors')
 const mongoose = require('mongoose')
 const app = express()
 const authRouter = require('./routes/auth')
+const userRouter = require('./routes/user')
+const parcelRouter = require('./routes/parcel')
 
 //MIDDLEWARES
 app.use(cors())
 app.use(express.json())
+
+
 
 //DB Connection
 const DB = process.env.DB
@@ -19,6 +23,9 @@ mongoose.connect(DB).then(()=>{
 
 //ROUTES
 app.use("/auth", authRouter)
+app.use("/user", userRouter)
+app.use("/parcel", parcelRouter)
+
 
 
 //SERVER
