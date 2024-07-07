@@ -16,7 +16,7 @@ const User = require("../models/User");
 //get all users
  const getAllUsers = async(req,res) =>{
     try{
-        const users = await User.find.sort({createdAt: -1})
+        const users = await User.find().sort({createdAt: -1})
         res.status(200).json(users)
     }catch(err){
         res.status(500).json(err)

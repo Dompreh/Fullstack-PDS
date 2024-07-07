@@ -5,31 +5,42 @@ require("dotenv").config();
 
 //register user
 
- const registerUser = async (req, res) => {
-  const newUser = User({
-    fullname: req.body.fullname,
-    email: req.body.email,
-    age: req.body.age,
-    country: req.body.country,
-    address: req.body.address,
-    password: cryptojs.AES.encrypt(
-      req.body.password,
-      process.env.PASS
-    ).toString(),
-    role: req.body.role,
-    status: req.body.status,
-  });
+const registerUser = async (req, res) => {
+  const { fullname, email, age, country, address, password, role, status } = req.body;
 
   try {
+    // Check for duplicate fullname
+    const duplicate = await User.findOne({ fullname })
+      .collation({ locale: "en", strength: 2 })
+      .lean()
+      .exec();
+
+    if (duplicate) {
+      return res.status(409).json({ message: "Duplicate fullname" });
+    }
+
+    // Create a new user
+    const newUser = new User({
+      fullname,
+      email,
+      age,
+      country,
+      address,
+      password: cryptojs.AES.encrypt(password, process.env.PASS).toString(),
+      role,
+      status,
+    });
+
+    // Save the new user
     const user = await newUser.save();
-    res.status(200).json(user);
+    res.status(200).json(user)
   } catch (error) {
     res.status(500).json(error);
   }
 };
 
 //login user
- const loginUser = async (req, res) => {
+const loginUser = async (req, res) => {
   try {
     const user = await User.findOne({ email: req.body.email });
 
@@ -38,14 +49,14 @@ require("dotenv").config();
     }
 
     const hashedPassword = cryptojs.AES.decrypt(
-      req.body.password,
+      user.password,
       process.env.PASS
     );
 
     const originalPassword = hashedPassword.toString(cryptojs.enc.Utf8);
 
     if (originalPassword !== req.body.password) {
-      res.status(500).json("Wrong password");
+      return res.status(500).json("Wrong password");
     }
 
     const { password, ...info } = user._doc;
@@ -58,11 +69,11 @@ require("dotenv").config();
 
     res.status(200).json({ ...info, accessToken });
   } catch (error) {
-    res.status(400).json(error);
+    res.status(500).json(error);
   }
 };
 
-module.exports ={
+module.exports = {
   registerUser,
-  loginUser
-}
+  loginUser,
+};
