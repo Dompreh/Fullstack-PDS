@@ -3,18 +3,20 @@ const app = express();
 require("dotenv").config();
 const cron = require("node-cron");
 const mongoose = require("mongoose");
+const {sendWelcomeEmail} = require("./emailServices/WelcomeEmail")
 
 //TASK Scheduler
 const run = () => {
-  cron.schedule("* * * * *", () => {
-    console.log("running every minute");
+  cron.schedule("*/15 * * * * *", () => {
+    console.log("running every 15s");
+    sendWelcomeEmail()
   });
 };
 
 run();
 
 //DB connection
-const DB = process.env.DB;
+const DB = process.env.DB; 
 mongoose
   .connect(DB)
   .then(() => {
@@ -24,7 +26,7 @@ mongoose
     console.log("Error:", err);
   });
 
-//aop listen
+//app listen
 const PORT = process.env.PORT;
 app.listen(PORT, () => {
   console.log(`Background services is running on port ${PORT}`);
