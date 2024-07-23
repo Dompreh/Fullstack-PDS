@@ -4,12 +4,16 @@ require("dotenv").config();
 const cron = require("node-cron");
 const mongoose = require("mongoose");
 const {sendWelcomeEmail} = require("./emailServices/WelcomeEmail")
+const {sendDeliveredParcelEmail} = require("./emailServices/DeliveredParcel")
+const {sendPendingParcelEmail} = require("./emailServices/SendPendingParcelEmail")
 
 //TASK Scheduler
 const run = () => {
   cron.schedule("*/15 * * * * *", () => {
     console.log("running every 15s");
     sendWelcomeEmail()
+    sendDeliveredParcelEmail()
+    sendPendingParcelEmail()
   });
 };
 
